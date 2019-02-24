@@ -18,7 +18,7 @@ def main():
     img = cv2.imread(sys.argv[1])
 
     #Define structure for .csv format
-    csv = {
+    result = {
         'x': [],
         'y': [],
         'z': [], #Not sure about this one
@@ -35,19 +35,19 @@ def main():
     for x in range(pixels_countX):
         for y in range(pixels_countY):
             pixel = img[x][y]
-            csv['x'].append(x)
-            csv['y'].append(y)
-            csv['z'].append(0)
-            csv['r'].append(pixel[0])
-            csv['g'].append(pixel[1])
-            csv['b'].append(pixel[2])
+            result['x'].append(x)
+            result['y'].append(y)
+            result['z'].append(0)
+            result['r'].append(pixel[0])
+            result['g'].append(pixel[1])
+            result['b'].append(pixel[2])
 
             progress = (x * pixels_countY + y) / pixels_count_total * 100
             print('%.2f%%\r' % progress, end='')
 
     #Save result
     print('Saving to '+ config['convert2csv_output'])
-    df = pd.DataFrame(csv)
+    df = pd.DataFrame(result)
     df.to_csv(config['convert2csv_output'], index=False)
 
 if __name__ == "__main__":

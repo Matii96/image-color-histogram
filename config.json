@@ -1,4 +1,5 @@
 {
     "convert2csv_output": "image.csv",
+    "main_output": "histogram.csv",
     "threads": 8
 }

@@ -7,13 +7,10 @@ import multiprocessing as mp
 #import matplotlib.pyplot as plt
 
 def count_colors(procnum, dict, df, row_start, row_end):
-    colors = {}
+    print('Thread %d started' % procnum)
+    colors = np.array([[[0] * 256] * 256] * 256)
     for index, row in df.loc[row_start:row_end].iterrows():
-        color = ','.join(map(lambda x: str(x), [row['r'], row['g'], row['b']]))
-
-        if not color in colors:
-            colors[color] = 0
-        colors[color] += 1
+        colors[row['r']][row['g']][row['b']] += 1
 
     dict[procnum] = colors
 
@@ -43,6 +40,7 @@ def main():
     threads = []
     last_task = 0
     print('Creating %d thread(s)' % config['threads'])
+    beginning = time()
     for i in range(config['threads']):
         row_end = last_task + thread_tasks[i]
         thread = mp.Process(target=count_colors, args=(i, dict, df, last_task, row_end))
@@ -50,37 +48,27 @@ def main():
         threads.append(thread)
         thread.start()
 
-    result = {}
-    print('Counting started')
-    beginning = time()
+    result = np.array([[[0] * 256] * 256] * 256)
     for i in range(config['threads']):
         threads[i].join()
-        for color in dict[i]:
-            if not color in result:
-                result[color] = 0
-            result[color] += dict[i][color]
+        print('Thread %d ended' % i)
+        result = np.add(result, dict[i])
     elapsed_time = time() - beginning
 
     print('Elapsed time: %.3fs' % elapsed_time)
 
-    for color, count in result.items():
-        print('%s: %d' % (color, count))
-
-    #Draw chart
-    '''
-    result = {
-        'colors': list(result.keys()),
-        'counts': list(result.values()),
+    #Print result
+    result_csv = {
+        'r': np.repeat(np.arange(0,256), 256 * 256),
+        'g': np.tile(np.repeat(np.arange(0,256), 256), 256),
+        'b': np.tile(np.arange(0,256), 256 * 256),
+        'count': result.ravel()
     }
-    fig, ax = plt.subplots()
-    ind = np.arange(1, len(result['colors'])+1)
-    chart = plt.bar(ind, result['counts'])
-    ax.set_xticks(ind)
-    ax.set_title('Colors histogram')
-    plt.axis([40, 160, 0, 0.03])
-    plt.grid(True)
-    plt.show()
-    '''
+
+    #Save result
+    print('Saving to '+ config['main_output'])
+    df = pd.DataFrame(result_csv)
+    df.to_csv(config['main_output'], index=False)
 
 if __name__ == "__main__":
     main()
