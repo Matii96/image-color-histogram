@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 from time import time
 import multiprocessing as mp
-#import matplotlib.pyplot as plt
 
 def count_colors(procnum, dict, df, row_start, row_end):
     print('Thread %d started' % procnum)
@@ -59,9 +58,9 @@ def main():
 
     #Print result
     result_csv = {
-        'r': np.repeat(np.arange(0,256), 256 * 256),
-        'g': np.tile(np.repeat(np.arange(0,256), 256), 256),
-        'b': np.tile(np.arange(0,256), 256 * 256),
+        'r': np.repeat(np.arange(0, 256), 256 * 256),
+        'g': np.tile(np.repeat(np.arange(0, 256), 256), 256),
+        'b': np.tile(np.arange(0, 256), 256 * 256),
         'count': result.ravel()
     }
 

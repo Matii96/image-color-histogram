@@ -15,19 +15,23 @@ def main():
         config = json.load(json_data)
 
     #load image
+    print('Loading image from '+ sys.argv[1])
     img = cv2.imread(sys.argv[1])
 
     #Define structure for .csv format
+    pixels_countX = len(img)
+    pixels_countY = len(img[0])
     result = {
-        'x': [],
-        'y': [],
-        'z': [], #Not sure about this one
-        'r': [],
-        'g': [],
-        'b': [],
+        'x': np.repeat(np.arange(0, pixels_countX), pixels_countY),
+        'y': np.tile(np.arange(0, pixels_countY), pixels_countX),
+        'z': [0] * pixels_countX * pixels_countY, #Not sure about this one
+        'r': img[:,:,0].ravel(),
+        'g': img[:,:,1].ravel(),
+        'b': img[:,:,2].ravel()
     }
 
     #Convert img to csv
+    '''
     pixels_countX = len(img)
     pixels_countY = len(img[0])
     pixels_count_total = pixels_countX * pixels_countY
@@ -44,6 +48,7 @@ def main():
 
             progress = (x * pixels_countY + y) / pixels_count_total * 100
             print('%.2f%%\r' % progress, end='')
+    '''
 
     #Save result
     print('Saving to '+ config['convert2csv_output'])
