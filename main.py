@@ -52,7 +52,7 @@ def main():
     result = np.array([[[0] * 256] * 256] * 256)
     for i in range(threads_to_run):
         threads[i].join()
-        print('Thread %d ended' % i)
+        print('Thread %d ended' % (i+1))
         result = np.add(result, dict[i])
     elapsed_time = time() - beginning
 
