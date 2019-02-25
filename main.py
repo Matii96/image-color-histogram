@@ -39,17 +39,18 @@ def main():
 
     threads = []
     last_task = 0
+    threads_to_run = range(min(config['threads'], len(thread_tasks)))
     print('Creating %d thread(s)' % config['threads'])
     beginning = time()
-    for i in range(config['threads']):
+    for i in threads_to_run:
         row_end = last_task + thread_tasks[i]
         thread = mp.Process(target=count_colors, args=(i, dict, img[last_task:row_end]))
         thread.start()
         threads.append(thread)
-        last_task = row_end + 1
+        last_task = row_end
 
     result = np.array([[[0] * 256] * 256] * 256)
-    for i in range(config['threads']):
+    for i in threads_to_run:
         threads[i].join()
         print('Thread %d ended' % i)
         result = np.add(result, dict[i])
@@ -64,7 +65,7 @@ def main():
         'b': np.tile(np.arange(0, 256), 256 * 256),
         'count': result.ravel()
     }
-
+    
     #Save result
     print('Saving to '+ config['main_output'])
     df = pd.DataFrame(result_csv)
