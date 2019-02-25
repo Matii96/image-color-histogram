@@ -5,11 +5,11 @@ import pandas as pd
 from time import time
 import multiprocessing as mp
 
-def count_colors(procnum, dict, df, row_start, row_end):
+def count_colors(procnum, dict, img_part):
     print('Thread %d started' % procnum)
     colors = np.array([[[0] * 256] * 256] * 256)
-    for index, row in df.loc[row_start:row_end].iterrows():
-        colors[row['r']][row['g']][row['b']] += 1
+    for row in img_part:
+        colors[row[0]][row[1]][row[2]] += 1
 
     dict[procnum] = colors
 
@@ -25,15 +25,16 @@ def main():
 
     #load image
     print('Loading image from '+ path_to_image)
-    df = pd.read_csv(path_to_image)
+    img = pd.read_csv(path_to_image).values[:,3:]
 
-    #Dictionary that allows communication between threads
+    #Dictionary that allows for communication between threads
     manager = mp.Manager()
     dict = manager.dict()
 
     #Even distribution of tasks to threads
-    thread_tasks = [df.shape[0] // config['threads']] * config['threads']
-    for i in range(df.shape[0] % config['threads']):
+    img_length = len(img)
+    thread_tasks = [img_length // config['threads']] * config['threads']
+    for i in range(img_length % config['threads']):
         thread_tasks[i] += 1
 
     threads = []
@@ -42,10 +43,10 @@ def main():
     beginning = time()
     for i in range(config['threads']):
         row_end = last_task + thread_tasks[i]
-        thread = mp.Process(target=count_colors, args=(i, dict, df, last_task, row_end))
-        last_task = row_end + 1
-        threads.append(thread)
+        thread = mp.Process(target=count_colors, args=(i, dict, img[last_task:row_end]))
         thread.start()
+        threads.append(thread)
+        last_task = row_end + 1
 
     result = np.array([[[0] * 256] * 256] * 256)
     for i in range(config['threads']):
