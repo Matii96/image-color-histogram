@@ -8,7 +8,7 @@ from os import path
 
 def count_colors(procnum, dict, img_part):
     print('Thread %d started' % (procnum+1))
-    colors = np.zeros((256, 256, 256))
+    colors = np.zeros((256, 256, 256)).astype(int)
     for row in img_part:
         colors[row[0]][row[1]][row[2]] += 1
 
@@ -53,7 +53,7 @@ def main():
         threads.append(thread)
         last_task = row_end
 
-    result = np.zeros((256, 256, 256))
+    result = np.zeros((256, 256, 256)).astype(int)
     for i in range(threads_to_run):
         threads[i].join()
         print('Thread %d ended' % (i+1))
