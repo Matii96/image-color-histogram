@@ -4,10 +4,11 @@ import numpy as np
 import pandas as pd
 from time import time
 import multiprocessing as mp
+from os import path
 
 def count_colors(procnum, dict, img_part):
     print('Thread %d started' % (procnum+1))
-    colors = np.array([[[0] * 256] * 256] * 256)
+    colors = np.zeros((256, 256, 256))
     for row in img_part:
         colors[row[0]][row[1]][row[2]] += 1
 
@@ -22,6 +23,9 @@ def main():
     path_to_image = config['convert2csv_output']
     if len(sys.argv) > 1:
         path_to_image = sys.argv[1]
+    if not path.isfile(path_to_image):
+        print('No file '+ path_to_image +' found')
+        return
 
     #load image
     print('Loading image from '+ path_to_image)
@@ -49,7 +53,7 @@ def main():
         threads.append(thread)
         last_task = row_end
 
-    result = np.array([[[0] * 256] * 256] * 256)
+    result = np.zeros((256, 256, 256))
     for i in range(threads_to_run):
         threads[i].join()
         print('Thread %d ended' % (i+1))

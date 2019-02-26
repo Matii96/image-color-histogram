@@ -3,11 +3,15 @@ import cv2
 import json
 import numpy as np
 import pandas as pd
+from os import path
 
 def main():
     #Check if path to image has been passed
     if len(sys.argv) == 1:
         print('Usage: python convert2csv.py path_to_image')
+        return
+    if not path.isfile(sys.argv[1]):
+        print('No file '+ sys.argv[1] +' found')
         return
 
     #Load configuration
