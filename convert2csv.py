@@ -28,7 +28,7 @@ def main():
     result = {
         'x': np.repeat(np.arange(0, pixels_countX), pixels_countY),
         'y': np.tile(np.arange(0, pixels_countY), pixels_countX),
-        'z': [0] * pixels_countX * pixels_countY, #Not sure about this one
+        'z': np.zeros(pixels_countX * pixels_countY).astype(int), #Not sure about this one
         'r': img[:,:,0].ravel(),
         'g': img[:,:,1].ravel(),
         'b': img[:,:,2].ravel()
