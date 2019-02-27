@@ -7,7 +7,7 @@ import multiprocessing as mp
 from os import path
 
 def count_colors(procnum, dict, img_part):
-    print('Thread %d started' % (procnum+1))
+    print('process %d started' % (procnum+1))
     colors = np.zeros((256, 256, 256)).astype(int)
     for row in img_part:
         colors[row[0]][row[1]][row[2]] += 1
@@ -31,32 +31,32 @@ def main():
     print('Loading image from '+ path_to_image)
     img = pd.read_csv(path_to_image).values[:,3:]
 
-    #Dictionary that allows for communication between threads
+    #Dictionary that allows for communication between processes
     manager = mp.Manager()
     dict = manager.dict()
 
-    #Even distribution of tasks to threads
+    #Even distribution of tasks to processes
     img_length = len(img)
-    thread_tasks = [img_length // config['threads']] * min(config['threads'], img_length)
-    for i in range(img_length % config['threads']):
-        thread_tasks[i] += 1
+    process_tasks = [img_length // config['processes']] * min(config['processes'], img_length)
+    for i in range(img_length % config['processes']):
+        process_tasks[i] += 1
 
-    threads = []
+    processes = []
     last_task = 0
-    threads_to_run = len(thread_tasks)
-    print('Creating %d thread(s)' % threads_to_run)
+    processes_to_run = len(process_tasks)
+    print('Creating %d process(es)' % processes_to_run)
     beginning = time()
-    for i in range(threads_to_run):
-        row_end = last_task + thread_tasks[i]
-        thread = mp.Process(target=count_colors, args=(i, dict, img[last_task:row_end]))
-        thread.start()
-        threads.append(thread)
+    for i in range(processes_to_run):
+        row_end = last_task + process_tasks[i]
+        process = mp.Process(target=count_colors, args=(i, dict, img[last_task:row_end]))
+        process.start()
+        processes.append(process)
         last_task = row_end
 
     result = np.zeros((256, 256, 256)).astype(int)
-    for i in range(threads_to_run):
-        threads[i].join()
-        print('Thread %d ended' % (i+1))
+    for i in range(processes_to_run):
+        processes[i].join()
+        print('process %d ended' % (i+1))
         result = np.add(result, dict[i])
     elapsed_time = time() - beginning
 
