@@ -8,9 +8,12 @@ from os import path
 
 def count_colors(procnum, dict, img_part):
     print('process %d started' % (procnum+1))
-    colors = np.zeros((256, 256, 256)).astype(int)
+    colors = {}
     for row in img_part:
-        colors[row[0]][row[1]][row[2]] += 1
+        key = ','.join(map(lambda x: "{:03d}".format(x), row))
+        if not key in colors:
+            colors[key] = 0
+        colors[key] += 1
 
     dict[procnum] = colors
 
@@ -53,26 +56,24 @@ def main():
         processes.append(process)
         last_task = row_end
 
-    result = np.zeros((256, 256, 256)).astype(int)
+    result = {}
     for i in range(processes_to_run):
         processes[i].join()
         print('process %d ended' % (i+1))
-        result = np.add(result, dict[i])
+        for color in dict[i]:
+            if not color in result:
+                result[color] = 0
+            result[color] += 1
     elapsed_time = time() - beginning
 
     print('Elapsed time: %.3fs' % elapsed_time)
 
-    #Print result
-    result_csv = {
-        'r': np.repeat(np.arange(0, 256), 256 * 256),
-        'g': np.tile(np.repeat(np.arange(0, 256), 256), 256),
-        'b': np.tile(np.arange(0, 256), 256 * 256),
-        'count': result.ravel()
-    }
-
     #Save result
     print('Saving to '+ config['main_output'])
-    df = pd.DataFrame(result_csv)
+    df = pd.DataFrame({
+        'color': list(result.keys()),
+        'count': list(result.values())
+    })
     df.to_csv(config['main_output'], index=False)
 
 if __name__ == "__main__":
