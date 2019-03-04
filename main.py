@@ -64,11 +64,21 @@ def main():
             if not color in result:
                 result[color] = 0
             result[color] += count
-    df = pd.DataFrame({
-        'color': list(result.keys()),
-        'count': list(result.values())
-    })
-    
+
+    result_csv = list(result.keys())
+    result_csv = list(map(lambda x: list(map(lambda y: int(y), x.split(','))) + [result[x]], result_csv))
+    result_csv = sorted(result_csv, key=lambda x: x[2])
+    result_csv = sorted(result_csv, key=lambda x: x[1])
+    result_csv = sorted(result_csv, key=lambda x: x[0])
+    result_csv = np.array(result_csv)
+    result_csv = {
+        'r': result_csv[:,0],
+        'g': result_csv[:,1],
+        'b': result_csv[:,2],
+        'count': result_csv[:,3],
+    }
+    df = pd.DataFrame(result_csv)
+
     elapsed_time = time() - beginning
     print('Elapsed time: %.3fs' % elapsed_time)
 
