@@ -32,7 +32,7 @@ def main():
 
     #load image
     print('Loading image from '+ path_to_image)
-    img = pd.read_csv(path_to_image).values[:,3:]
+    img = pd.read_csv(path_to_image).values[:,2:]
 
     #Dictionary that allows for communication between processes
     manager = mp.Manager()
@@ -67,9 +67,11 @@ def main():
 
     result_csv = list(result.keys())
     result_csv = list(map(lambda x: list(map(lambda y: int(y), x.split(','))) + [result[x]], result_csv))
+    '''
     result_csv = sorted(result_csv, key=lambda x: x[2])
     result_csv = sorted(result_csv, key=lambda x: x[1])
     result_csv = sorted(result_csv, key=lambda x: x[0])
+    '''
     result_csv = np.array(result_csv)
     result_csv = {
         'r': result_csv[:,0],
